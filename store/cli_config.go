@@ -1,4 +1,4 @@
-package cliconfig
+package store
 
 type cliConfig struct {
 	Debug bool

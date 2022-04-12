@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/fatih/color"
-	cliConfig "github.com/levibostian/Purslane/cliconfig"
+	"github.com/levibostian/atr/store"
 )
 
 func ShouldNotHappen(err error) {
@@ -26,10 +26,15 @@ func HandleError(err error) {
 
 // Debug - Allows you to put anything you want inside. String, struct, etc. We will print that to the console.
 func Debug(format string, args ...interface{}) {
-	if cliConfig.CliConfig.Debug {
+	if store.CliConfig.Debug {
 		msg := fmt.Sprintf(format, args...)
 		color.Cyan("[DEBUG] " + msg)
 	}
+}
+
+// Debug - Allows you to put anything you want inside. String, struct, etc. We will print that to the console.
+func DebugError(err error) {
+	Debug("%v", err)
 }
 
 func Abort(message string) {
@@ -46,4 +51,10 @@ func Error(message string) {
 func Message(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	color.White(msg)
+}
+
+// Message Show a success message in green
+func Success(format string, args ...interface{}) {
+	msg := fmt.Sprintf(format, args...)
+	color.Green(msg)
 }
