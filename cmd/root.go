@@ -4,9 +4,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/levibostian/atr/assert"
-	"github.com/levibostian/atr/store"
-	"github.com/levibostian/atr/ui"
+	"github.com/levibostian/bins/assert"
+	"github.com/levibostian/bins/store"
+	"github.com/levibostian/bins/ui"
 )
 
 var cfgFile string
@@ -14,7 +14,7 @@ var debug bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "atr",
+	Use:   "bins",
 	Short: "Assert the local environment has all required binaries installed.",
 	Long: `Assert the local environment has all required binaries (and required version) installed.
 	
@@ -38,7 +38,7 @@ func init() {
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here, will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is .atr.yml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is .bins.yml)")
 
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Show debug statements. Used for debugging program for bug reports and development. (default false)")
 }
@@ -48,7 +48,7 @@ func initConfig() {
 	if cfgFile != "" { // user defined it as an arg
 		viper.SetConfigFile(cfgFile)
 	} else {
-		viper.SetConfigFile(".atr.yml")
+		viper.SetConfigFile(".bins.yml")
 	}
 	viper.AddConfigPath(".")
 

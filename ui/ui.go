@@ -7,7 +7,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
-	"github.com/levibostian/atr/store"
+	"github.com/levibostian/bins/store"
 )
 
 func ShouldNotHappen(err error) {

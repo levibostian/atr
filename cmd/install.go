@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/levibostian/atr/install"
+	"github.com/levibostian/bins/install"
 	"github.com/spf13/cobra"
 )
 

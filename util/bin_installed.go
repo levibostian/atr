@@ -3,7 +3,7 @@ package util
 import (
 	"fmt"
 
-	"github.com/levibostian/atr/ui"
+	"github.com/levibostian/bins/ui"
 )
 
 func IsBinInstalled(bin string) bool {

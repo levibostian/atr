@@ -1,8 +1,8 @@
 package assert
 
 import (
-	"github.com/levibostian/atr/types"
-	"github.com/levibostian/atr/ui"
+	"github.com/levibostian/bins/types"
+	"github.com/levibostian/bins/ui"
 	"github.com/spf13/viper"
 )
 

@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/levibostian/atr/assert"
-	"github.com/levibostian/atr/types"
-	"github.com/levibostian/atr/ui"
-	"github.com/levibostian/atr/util"
+	"github.com/levibostian/bins/assert"
+	"github.com/levibostian/bins/types"
+	"github.com/levibostian/bins/ui"
+	"github.com/levibostian/bins/util"
 )
 
 func RunCommand(dryRun bool) {

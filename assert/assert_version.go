@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/levibostian/atr/types"
-	"github.com/levibostian/atr/ui"
-	"github.com/levibostian/atr/util"
+	"github.com/levibostian/bins/types"
+	"github.com/levibostian/bins/ui"
+	"github.com/levibostian/bins/util"
 )
 
 func AssertBinariesVersionMet(bins types.Bins) []AssertError {

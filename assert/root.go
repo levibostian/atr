@@ -3,8 +3,8 @@ package assert
 import (
 	"fmt"
 
-	"github.com/levibostian/atr/types"
-	"github.com/levibostian/atr/ui"
+	"github.com/levibostian/bins/types"
+	"github.com/levibostian/bins/ui"
 )
 
 type AssertError struct {

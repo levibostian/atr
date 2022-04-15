@@ -1,6 +1,6 @@
 package main
 
-import "github.com/levibostian/atr/cmd"
+import "github.com/levibostian/bins/cmd"
 
 func main() {
 	cmd.Execute()

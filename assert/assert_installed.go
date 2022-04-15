@@ -1,8 +1,8 @@
 package assert
 
 import (
-	"github.com/levibostian/atr/types"
-	"github.com/levibostian/atr/util"
+	"github.com/levibostian/bins/types"
+	"github.com/levibostian/bins/util"
 )
 
 func AssertBinariesInstalled(bins types.Bins) []AssertError {
