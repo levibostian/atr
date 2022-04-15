@@ -15,13 +15,12 @@ var debug bool
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "bins",
-	Short: "Assert the local environment has all required binaries installed.",
-	Long: `Assert the local environment has all required binaries (and required version) installed.
-	
-If the requirements are not met, tool will assist the user to install or upgrade their binaries to meet requirements`,
+	Short: "Assert everyone on your team (or CI server) has binaries installed for project.",
+	Long:  `Assert everyone on your team (or CI server) has binaries installed for project. Makes onboarding with a new project a more positive experience.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
+		// default command is assert
 		assert.AssertThenRun()
 	},
 }
