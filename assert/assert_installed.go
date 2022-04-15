@@ -1,8 +1,11 @@
 package assert
 
-import "github.com/levibostian/atr/util"
+import (
+	"github.com/levibostian/atr/types"
+	"github.com/levibostian/atr/util"
+)
 
-func AssertBinariesInstalled(bins Bins) []AssertError {
+func AssertBinariesInstalled(bins types.Bins) []AssertError {
 	var assertErrors []AssertError
 
 	for _, bin := range bins {

@@ -1,5 +1,7 @@
 bins:
   - binary: sourcery 
     version: "^2.0.0"
-  - binary: foo 
-    version: "^2.1.0"
+    installCommand: ["brew install {{.Binary}}"]
+  # - binary: fastlane
+  #   version: "^2.0.0"
+  #   method: [gem]

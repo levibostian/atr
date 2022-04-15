@@ -1,14 +1,13 @@
 package util
 
 import (
-	"os/exec"
+	"fmt"
 
 	"github.com/levibostian/atr/ui"
 )
 
 func IsBinInstalled(bin string) bool {
-	cmd := exec.Command("command", "-v", bin)
-	stdout, err := cmd.Output()
+	stdout, err := ExecuteShellCommand(fmt.Sprintf("command -v %s", bin))
 	ui.Debug("Checking if %s binary installed. stdout %s, err %v", bin, stdout, err)
 
 	isInstalled := err == nil

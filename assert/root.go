@@ -3,22 +3,19 @@ package assert
 import (
 	"fmt"
 
+	"github.com/levibostian/atr/types"
 	"github.com/levibostian/atr/ui"
 )
 
 type AssertError struct {
-	Bin              Bin
+	Bin              types.Bin
 	IsInstalled      bool
 	InstalledVersion *string
 	RequiredVersion  *string
 }
 
 func AssertThenRun() {
-	requiredBins := GetRequiredBins()
-	binariesNotInstalled := AssertBinariesInstalled(requiredBins)
-	binaryVersionRequirementsNotMet := AssertBinariesVersionMet(requiredBins)
-
-	assertErrors := append(binariesNotInstalled, binaryVersionRequirementsNotMet...)
+	assertErrors := GetBinariesNotSatisfyingRequirements()
 
 	if len(assertErrors) > 0 {
 		ui.Message(getErrorMessageFromAssertErrors(assertErrors))
@@ -27,6 +24,14 @@ func AssertThenRun() {
 	}
 
 	ui.Success("All binaries installed with required version!")
+}
+
+func GetBinariesNotSatisfyingRequirements() []AssertError {
+	requiredBins := GetRequiredBins()
+	binariesNotInstalled := AssertBinariesInstalled(requiredBins)
+	binaryVersionRequirementsNotMet := AssertBinariesVersionMet(requiredBins)
+
+	return append(binariesNotInstalled, binaryVersionRequirementsNotMet...)
 }
 
 func getErrorMessageFromAssertErrors(assertErrors []AssertError) string {
