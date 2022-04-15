@@ -1,17 +1,20 @@
 package install
 
 import (
-	"bytes"
-	"text/template"
+	"os"
 
 	"github.com/levibostian/bins/assert"
 	"github.com/levibostian/bins/types"
 	"github.com/levibostian/bins/ui"
 	"github.com/levibostian/bins/util"
+	"github.com/manifoldco/promptui"
 )
 
 func RunCommand(dryRun bool) {
-	ui.Debug("Running install command. dry-run %v", dryRun)
+	isOnCI := os.Getenv("CI") != ""
+	isInteractive := !isOnCI
+
+	ui.Debug("Running install command. interactive %v, dry-run %v", isInteractive, dryRun)
 
 	binariesToInstall := assert.GetBinariesNotSatisfyingRequirements()
 	if len(binariesToInstall) <= 0 {
@@ -26,7 +29,7 @@ func RunCommand(dryRun bool) {
 		if dryRun {
 			ui.Message("• %s", binaryToInstall.Bin.Binary)
 		} else {
-			didInstallSuccessfully := tryToInstallBinary(binaryToInstall.Bin)
+			didInstallSuccessfully := tryToInstallBinary(binaryToInstall.Bin, isInteractive)
 			if !didInstallSuccessfully {
 				ui.Abort("%s did not install successfully. Exiting...")
 			}
@@ -44,32 +47,33 @@ func RunCommand(dryRun bool) {
 	ui.Success("All binaries are installed and meet version requirements!")
 }
 
-func tryToInstallBinary(bin types.Bin) bool {
-	for _, installTemplate := range bin.InstallCommand {
-		_, err := tryToInstallBinaryFromTemplate(bin, installTemplate)
-		if err == nil {
-			ui.Debug("Successfully installed %s", bin.Binary)
-			return true
+func tryToInstallBinary(bin types.Bin, isInteractive bool) bool {
+	if isInteractive && len(bin.InstallCommand) > 1 {
+		prompt := promptui.Select{
+			Label: "What method of installing do you prefer?",
+			Items: bin.InstallCommand,
 		}
-	}
+		_, result, err := prompt.Run()
+		ui.HandleError(err)
 
-	return false
+		_, err = tryToInstallBinaryFromCommand(bin, result)
+
+		didInstallSuccessfully := err == nil
+		return didInstallSuccessfully
+	} else {
+		for _, installTemplate := range bin.InstallCommand {
+			_, err := tryToInstallBinaryFromCommand(bin, installTemplate)
+			if err == nil {
+				ui.Debug("Successfully installed %s", bin.Binary)
+				return true
+			}
+		}
+
+		return false
+	}
 }
 
-func tryToInstallBinaryFromTemplate(bin types.Bin, installTemplate string) (stdout string, err error) {
-	ui.Debug("Parsing install template for %s: %s", bin.Binary, installTemplate)
-	installCommandTemplate, err := template.New("install command").Parse(installTemplate)
-	ui.HandleError(err)
-
-	var installCommandBuf bytes.Buffer
-	installCommandTemplate.Execute(&installCommandBuf, struct {
-		Binary  string
-		Version string
-	}{bin.Binary, bin.GetVersion()})
-
-	installCommand := installCommandBuf.String()
-	ui.Debug("Command to install %s: %s", bin.Binary, installCommand)
-
+func tryToInstallBinaryFromCommand(bin types.Bin, installCommand string) (stdout string, err error) {
 	progressBar := ui.MessageProgress("Installing %s with command %s", bin.Binary, installCommand)
 	stdout, err = util.ExecuteShellCommand(installCommand)
 	progressBar.Done()
