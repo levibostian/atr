@@ -10,8 +10,8 @@ import (
 	"github.com/levibostian/atr/util"
 )
 
-func RunCommand() {
-	ui.Debug("Running install command")
+func RunCommand(dryRun bool) {
+	ui.Debug("Running install command. dry-run %v", dryRun)
 
 	binariesToInstall := assert.GetBinariesNotSatisfyingRequirements()
 	if len(binariesToInstall) <= 0 {
@@ -19,11 +19,21 @@ func RunCommand() {
 		return
 	}
 
+	if dryRun {
+		ui.Message("Command run in dry run mode. Printing binaries that would be installed:")
+	}
 	for _, binaryToInstall := range binariesToInstall {
-		didInstallSuccessfully := tryToInstallBinary(binaryToInstall.Bin)
-		if !didInstallSuccessfully {
-			ui.Abort("%s did not install successfully. Exiting...")
+		if dryRun {
+			ui.Message("• %s", binaryToInstall.Bin.Binary)
+		} else {
+			didInstallSuccessfully := tryToInstallBinary(binaryToInstall.Bin)
+			if !didInstallSuccessfully {
+				ui.Abort("%s did not install successfully. Exiting...")
+			}
 		}
+	}
+	if dryRun {
+		return
 	}
 
 	binariesToInstall = assert.GetBinariesNotSatisfyingRequirements()
