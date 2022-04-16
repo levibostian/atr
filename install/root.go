@@ -75,7 +75,7 @@ func tryToInstallBinary(bin types.Bin, isInteractive bool) bool {
 
 func tryToInstallBinaryFromCommand(bin types.Bin, installCommand string) (stdout string, err error) {
 	progressBar := ui.MessageProgress("Installing %s with command %s", bin.Binary, installCommand)
-	stdout, err = util.ExecuteShellCommand(installCommand)
+	stdout, err = util.ExecuteShellCommand(installCommand, nil)
 	progressBar.Done()
 	if err == nil {
 		ui.Success("%s Installed %s successfully", ui.Emojis[":check_mark:"], bin.Binary)

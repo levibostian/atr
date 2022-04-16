@@ -14,20 +14,23 @@ func AssertBinariesVersionMet(bins types.Bins) []AssertError {
 	var assertErrors []AssertError
 
 	for _, bin := range bins {
-		installedVersion, err := getBinInstalledVersion(bin.Binary)
-		if err != nil {
+		installedVersion := getBinInstalledVersion(bin)
+		if installedVersion == nil {
+			ui.Debug("Could not determine version of %s", bin.Binary)
+			// TODO this needs fixed. as of now, if it's installed but cant find version, we will not report it as a problem to fix in assert. this needs changed.
+
 			// we will assume the bin is not installed so just ignore it
 			continue
 		}
 		installedVersionString := installedVersion.String()
 
-		requiredVersionConstraint, err := semver.NewConstraint(bin.Version)
+		requiredVersionConstraint, err := semver.NewConstraint(bin.Version.Requirement)
 		if err != nil {
 			ui.DebugError(err)
 			continue
 		}
 
-		ui.Debug("Checking if %s meets required version %s with installed: %s", bin.Binary, bin.Version, installedVersionString)
+		ui.Debug("Checking if %s meets required version %s with installed: %s", bin.Binary, bin.Version.Requirement, installedVersionString)
 		isBinaryVersionRequirementMet := requiredVersionConstraint.Check(installedVersion)
 		if !isBinaryVersionRequirementMet {
 			ui.Debug("%s does not meet version requirement", bin.Binary)
@@ -36,7 +39,7 @@ func AssertBinariesVersionMet(bins types.Bins) []AssertError {
 				Bin:              bin,
 				IsInstalled:      true,
 				InstalledVersion: &installedVersionString,
-				RequiredVersion:  &bin.Version,
+				RequiredVersion:  &bin.Version.Requirement,
 			})
 			continue
 		}
@@ -47,19 +50,39 @@ func AssertBinariesVersionMet(bins types.Bins) []AssertError {
 	return assertErrors
 }
 
-func getBinInstalledVersion(bin string) (*semver.Version, error) {
-	stdout, err := util.ExecuteShellCommand(fmt.Sprintf("%s --version", bin))
-	ui.Debug("Getting version of %s. stdout %s, err %v", bin, stdout, err)
-	if err != nil {
-		return nil, err
+func getBinInstalledVersion(bin types.Bin) *semver.Version {
+	var getVersionCommand string = fmt.Sprintf("%s --version", bin.Binary)
+	if bin.Version.Command != nil {
+		getVersionCommand = *bin.Version.Command
 	}
 
-	version, err := semver.NewVersion(strings.TrimSpace(string(stdout)))
+	stdout, err := util.ExecuteShellCommand(getVersionCommand, bin.Version.EnvVars)
+	ui.Debug("Getting version of %s. from stdout %s, err %v", bin.Binary, stdout, err)
 	if err != nil {
-		ui.DebugError(err)
-		return nil, err
+		return nil
 	}
-	ui.Debug("Version parsed for %s: %s", bin, version.String())
 
-	return version, nil
+	var stdoutWords []string
+	for _, line := range strings.Split(string(stdout), "\n") {
+		for _, word := range strings.Split(line, " ") {
+			stdoutWords = append(stdoutWords, word)
+		}
+	}
+
+	var versionResult *semver.Version
+	for _, word := range stdoutWords {
+		version, _ := semver.NewVersion(word)
+		if version != nil {
+			versionResult = version
+			break
+		}
+	}
+
+	if versionResult == nil {
+		return nil
+	}
+
+	ui.Debug("Version parsed for %s: %s", bin.Binary, versionResult.String())
+
+	return versionResult
 }
