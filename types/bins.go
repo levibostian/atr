@@ -11,6 +11,9 @@ type Bin struct {
 		Command       string
 		UpdateCommand *string
 	}
+	PostInstall *struct {
+		Command string
+	}
 }
 
 type Bins = []Bin

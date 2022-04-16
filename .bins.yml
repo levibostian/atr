@@ -4,6 +4,15 @@ bins:
       requirement: "^2.0.0"
     installMethods:
       - command: "brew install sourcery"
+  - binary: lefthook 
+    version:
+      requirement: "^0.7"
+      command: "lefthook version"
+    installMethods:
+      - command: "brew install lefthook"
+        updateCommand: "brew upgrade lefthook"
+    postInstall:
+      command: "lefthook install"
   - binary: fastlane
     version:
       requirement: "^2.0.0"

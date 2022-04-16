@@ -38,6 +38,16 @@ func RunCommand(dryRun bool) {
 			if !didInstallSuccessfully {
 				ui.Abort("%s did not install successfully. Exiting...")
 			}
+
+			binPostInstall := binaryToInstall.Bin.PostInstall
+			if binPostInstall != nil {
+				progressBar := ui.MessageProgress("Running post install command %s for bin: %s", binPostInstall.Command, binaryToInstall.Bin.Binary)
+				_, err := util.ExecuteShellCommand(binPostInstall.Command, nil)
+				progressBar.Done()
+				if err == nil {
+					ui.Success("Post install %s successful", binaryToInstall.Bin.Binary)
+				}
+			}
 		}
 	}
 	if dryRun {
