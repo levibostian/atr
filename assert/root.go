@@ -10,6 +10,7 @@ import (
 type AssertError struct {
 	Bin              types.Bin
 	IsInstalled      bool
+	NeedsUpdate      bool
 	InstalledVersion *string
 	RequiredVersion  *string
 }

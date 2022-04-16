@@ -38,6 +38,7 @@ func AssertBinariesVersionMet(bins types.Bins) []AssertError {
 			assertErrors = append(assertErrors, AssertError{
 				Bin:              bin,
 				IsInstalled:      true,
+				NeedsUpdate:      true,
 				InstalledVersion: &installedVersionString,
 				RequiredVersion:  &bin.Version.Requirement,
 			})

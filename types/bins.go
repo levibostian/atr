@@ -7,7 +7,10 @@ type Bin struct {
 		Command     *string
 		EnvVars     *[]string
 	}
-	InstallCommand []string
+	InstallMethods []struct {
+		Command       string
+		UpdateCommand *string
+	}
 }
 
 type Bins = []Bin

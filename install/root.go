@@ -14,7 +14,7 @@ func RunCommand(dryRun bool) {
 	isOnCI := os.Getenv("CI") != ""
 	isInteractive := !isOnCI
 
-	ui.Debug("Running install command. interactive %v, dry-run %v", isInteractive, dryRun)
+	ui.Debug("Running install. interactive %v, dry-run %v", isInteractive, dryRun)
 
 	binariesToInstall := assert.GetBinariesNotSatisfyingRequirements()
 	if len(binariesToInstall) <= 0 {
@@ -23,13 +23,18 @@ func RunCommand(dryRun bool) {
 	}
 
 	if dryRun {
-		ui.Message("Command run in dry run mode. Printing binaries that would be installed:")
+		ui.Message("Command run in dry run mode. Printing binaries that would be installed or updated:")
 	}
 	for _, binaryToInstall := range binariesToInstall {
 		if dryRun {
-			ui.Message("• %s", binaryToInstall.Bin.Binary)
+			var suffix string = "(install)"
+			if binaryToInstall.NeedsUpdate {
+				suffix = "(update)"
+			}
+
+			ui.Message("• %s %s", binaryToInstall.Bin.Binary, suffix)
 		} else {
-			didInstallSuccessfully := tryToInstallBinary(binaryToInstall.Bin, isInteractive)
+			didInstallSuccessfully := tryToInstallOrUpdateBinary(binaryToInstall.Bin, binaryToInstall, isInteractive)
 			if !didInstallSuccessfully {
 				ui.Abort("%s did not install successfully. Exiting...")
 			}
@@ -47,11 +52,21 @@ func RunCommand(dryRun bool) {
 	ui.Success("All binaries are installed and meet version requirements!")
 }
 
-func tryToInstallBinary(bin types.Bin, isInteractive bool) bool {
-	if isInteractive && len(bin.InstallCommand) > 1 {
+func tryToInstallOrUpdateBinary(bin types.Bin, assertError assert.AssertError, isInteractive bool) bool {
+	var commandsToChooseFrom []string // depending on if we need to install or upgrade, get the options
+	updateBin := assertError.NeedsUpdate
+	for _, installMethod := range bin.InstallMethods {
+		if updateBin && installMethod.UpdateCommand != nil {
+			commandsToChooseFrom = append(commandsToChooseFrom, *installMethod.UpdateCommand)
+		} else {
+			commandsToChooseFrom = append(commandsToChooseFrom, installMethod.Command)
+		}
+	}
+
+	if isInteractive && len(bin.InstallMethods) > 1 {
 		prompt := promptui.Select{
 			Label: "What method of installing do you prefer?",
-			Items: bin.InstallCommand,
+			Items: commandsToChooseFrom,
 		}
 		_, result, err := prompt.Run()
 		ui.HandleError(err)
@@ -61,8 +76,8 @@ func tryToInstallBinary(bin types.Bin, isInteractive bool) bool {
 		didInstallSuccessfully := err == nil
 		return didInstallSuccessfully
 	} else {
-		for _, installTemplate := range bin.InstallCommand {
-			_, err := tryToInstallBinaryFromCommand(bin, installTemplate)
+		for _, command := range commandsToChooseFrom {
+			_, err := tryToInstallBinaryFromCommand(bin, command)
 			if err == nil {
 				ui.Debug("Successfully installed %s", bin.Binary)
 				return true
