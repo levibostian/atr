@@ -4,7 +4,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/levibostian/bins/assert"
 	"github.com/levibostian/bins/store"
 	"github.com/levibostian/bins/ui"
 )
@@ -20,8 +19,7 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		// default command is assert
-		assert.AssertThenRun()
+		assertCmd.Run(cmd, args) // assert is default command
 	},
 }
 

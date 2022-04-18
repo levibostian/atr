@@ -3,9 +3,7 @@ package ui
 import (
 	"fmt"
 	"os"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/levibostian/bins/store"
 )
@@ -39,38 +37,14 @@ func DebugError(err error) {
 	Debug("%v", err)
 }
 
-func Abort(message string) {
-	Error(message)
+func Abort(format string, args ...interface{}) {
+	Error(format, args...)
 	os.Exit(1)
 }
 
 // Error show a message in red
-func Error(message string) {
-	color.Red(message)
-}
-
-type Progress interface {
-	Done()
-}
-
-type SpinnerProgress struct {
-	Spinner *spinner.Spinner
-}
-
-func (spinner SpinnerProgress) Done() {
-	spinner.Spinner.Stop()
-}
-
-func MessageProgress(format string, args ...interface{}) Progress {
-	spinner := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
-	spinner.Suffix = " " + fmt.Sprintf(format, args...)
-	spinner.Color("magenta")
-
-	spinner.Start()
-
-	return SpinnerProgress{
-		Spinner: spinner,
-	}
+func Error(format string, args ...interface{}) {
+	color.Red(fmt.Sprintf(format, args...))
 }
 
 // Message Show a neutral message in white

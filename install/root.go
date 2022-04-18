@@ -16,7 +16,7 @@ func RunCommand(dryRun bool) {
 
 	ui.Debug("Running install. interactive %v, dry-run %v", isInteractive, dryRun)
 
-	binariesToInstall := assert.GetBinariesNotSatisfyingRequirements()
+	binariesToInstall, _ := assert.GetBinariesNotSatisfyingRequirements()
 	if len(binariesToInstall) <= 0 {
 		ui.Success("All binaries are installed and meet version requirements. Nothing to install!")
 		return
@@ -36,14 +36,13 @@ func RunCommand(dryRun bool) {
 		} else {
 			didInstallSuccessfully := tryToInstallOrUpdateBinary(binaryToInstall.Bin, binaryToInstall, isInteractive)
 			if !didInstallSuccessfully {
-				ui.Abort("%s did not install successfully. Exiting...")
+				ui.Abort("%s did not install successfully. Exiting...", binaryToInstall.Bin.Binary)
 			}
 
 			binPostInstall := binaryToInstall.Bin.PostInstall
 			if binPostInstall != nil {
-				progressBar := ui.MessageProgress("Running post install command %s for bin: %s", binPostInstall.Command, binaryToInstall.Bin.Binary)
-				_, err := util.ExecuteShellCommand(binPostInstall.Command, nil)
-				progressBar.Done()
+				ui.Message("Running post install command %s for bin: %s", binPostInstall.Command, binaryToInstall.Bin.Binary)
+				_, err := util.ExecuteShellCommand(binPostInstall.Command, util.GetDefaultOptions())
 				if err == nil {
 					ui.Success("Post install %s successful", binaryToInstall.Bin.Binary)
 				}
@@ -54,7 +53,8 @@ func RunCommand(dryRun bool) {
 		return
 	}
 
-	binariesToInstall = assert.GetBinariesNotSatisfyingRequirements()
+	ui.Message("Now that installing is all done, making sure that you have installed all the requirements now...")
+	binariesToInstall, _ = assert.GetBinariesNotSatisfyingRequirements()
 	if len(binariesToInstall) > 0 {
 		ui.Abort("Oh, no! I installed the binaries for you successfully however, it seems that the requirements are still not met. I am not sure how to fix this for you. Perhaps you need to improve your configuration file and try again?")
 	}
@@ -73,9 +73,9 @@ func tryToInstallOrUpdateBinary(bin types.Bin, assertError assert.AssertError, i
 		}
 	}
 
-	if isInteractive && len(bin.InstallMethods) > 1 {
+	if isInteractive {
 		prompt := promptui.Select{
-			Label: "What method of installing do you prefer?",
+			Label: "In case you have a preference of what type of install to run, select one of the options below. If you don't mind, any of the options should do.",
 			Items: commandsToChooseFrom,
 		}
 		_, result, err := prompt.Run()
@@ -99,9 +99,11 @@ func tryToInstallOrUpdateBinary(bin types.Bin, assertError assert.AssertError, i
 }
 
 func tryToInstallBinaryFromCommand(bin types.Bin, installCommand string) (stdout string, err error) {
-	progressBar := ui.MessageProgress("Installing %s with command %s", bin.Binary, installCommand)
-	stdout, err = util.ExecuteShellCommand(installCommand, nil)
-	progressBar.Done()
+	ui.Message("Installing %s with command %s...", bin.Binary, installCommand)
+
+	shellCommandOptions := util.GetDefaultOptions()
+	shellCommandOptions.StdoutToOS = true
+	stdout, err = util.ExecuteShellCommand(installCommand, shellCommandOptions)
 	if err == nil {
 		ui.Success("%s Installed %s successfully", ui.Emojis[":check_mark:"], bin.Binary)
 	}

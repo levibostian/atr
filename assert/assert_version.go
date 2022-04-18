@@ -10,18 +10,9 @@ import (
 	"github.com/levibostian/bins/util"
 )
 
-func AssertBinariesVersionMet(bins types.Bins) []AssertError {
-	var assertErrors []AssertError
-
+func AssertBinariesVersionMet(bins types.Bins) (errors []AssertError, validBins []types.Bin) {
 	for _, bin := range bins {
 		installedVersion := getBinInstalledVersion(bin)
-		if installedVersion == nil {
-			ui.Debug("Could not determine version of %s", bin.Binary)
-			// TODO this needs fixed. as of now, if it's installed but cant find version, we will not report it as a problem to fix in assert. this needs changed.
-
-			// we will assume the bin is not installed so just ignore it
-			continue
-		}
 		installedVersionString := installedVersion.String()
 
 		requiredVersionConstraint, err := semver.NewConstraint(bin.Version.Requirement)
@@ -31,11 +22,11 @@ func AssertBinariesVersionMet(bins types.Bins) []AssertError {
 		}
 
 		ui.Debug("Checking if %s meets required version %s with installed: %s", bin.Binary, bin.Version.Requirement, installedVersionString)
-		isBinaryVersionRequirementMet := requiredVersionConstraint.Check(installedVersion)
+		isBinaryVersionRequirementMet := requiredVersionConstraint.Check(&installedVersion)
 		if !isBinaryVersionRequirementMet {
 			ui.Debug("%s does not meet version requirement", bin.Binary)
 
-			assertErrors = append(assertErrors, AssertError{
+			errors = append(errors, AssertError{
 				Bin:              bin,
 				IsInstalled:      true,
 				NeedsUpdate:      true,
@@ -43,24 +34,30 @@ func AssertBinariesVersionMet(bins types.Bins) []AssertError {
 				RequiredVersion:  &bin.Version.Requirement,
 			})
 			continue
+		} else {
+			validBins = append(validBins, bin)
 		}
 
 		ui.Debug("%s does meet version requirement", bin.Binary)
 	}
 
-	return assertErrors
+	return
 }
 
-func getBinInstalledVersion(bin types.Bin) *semver.Version {
+func getBinInstalledVersion(bin types.Bin) semver.Version {
 	var getVersionCommand string = fmt.Sprintf("%s --version", bin.Binary)
 	if bin.Version.Command != nil {
 		getVersionCommand = *bin.Version.Command
 	}
 
-	stdout, err := util.ExecuteShellCommand(getVersionCommand, bin.Version.EnvVars)
+	shellCommandOptions := util.GetDefaultOptions()
+	if bin.Version.EnvVars != nil {
+		shellCommandOptions.EnvVars = *bin.Version.EnvVars
+	}
+	stdout, err := util.ExecuteShellCommand(getVersionCommand, shellCommandOptions)
 	ui.Debug("Getting version of %s. from stdout %s, err %v", bin.Binary, stdout, err)
 	if err != nil {
-		return nil
+		ui.Abort("Could not determine version of %s. Check your configuration to help successfully get the version string. Here is stdout from trying to get version: %s", bin.Binary, stdout)
 	}
 
 	var stdoutWords []string
@@ -80,10 +77,10 @@ func getBinInstalledVersion(bin types.Bin) *semver.Version {
 	}
 
 	if versionResult == nil {
-		return nil
+		ui.Abort("Could not determine version of %s. Check your configuration to help successfully get the version string. Here is stdout from trying to get version: %s", bin.Binary, stdout)
 	}
 
 	ui.Debug("Version parsed for %s: %s", bin.Binary, versionResult.String())
 
-	return versionResult
+	return *versionResult
 }

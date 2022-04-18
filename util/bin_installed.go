@@ -7,7 +7,7 @@ import (
 )
 
 func IsBinInstalled(bin string) bool {
-	stdout, err := ExecuteShellCommand(fmt.Sprintf("command -v %s", bin), nil)
+	stdout, err := ExecuteShellCommand(fmt.Sprintf("command -v %s", bin), GetDefaultOptions())
 	ui.Debug("Checking if %s binary installed. stdout %s, err %v", bin, stdout, err)
 
 	isInstalled := err == nil

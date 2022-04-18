@@ -5,17 +5,21 @@ import (
 	"github.com/levibostian/bins/util"
 )
 
-func AssertBinariesInstalled(bins types.Bins) []AssertError {
-	var assertErrors []AssertError
-
+func AssertBinariesInstalledAndVersionMet(bins types.Bins) (errors []AssertError, validBins []types.Bin) {
+	var binariesInstalled []types.Bin
 	for _, bin := range bins {
 		if !util.IsBinInstalled(bin.Binary) {
-			assertErrors = append(assertErrors, AssertError{
+			errors = append(errors, AssertError{
 				Bin:         bin,
 				IsInstalled: false,
 			})
+		} else {
+			binariesInstalled = append(binariesInstalled, bin)
 		}
 	}
 
-	return assertErrors
+	binariesVersionNotMet, validBins := AssertBinariesVersionMet(binariesInstalled)
+	errors = append(errors, binariesVersionNotMet...)
+
+	return
 }
