@@ -51,8 +51,8 @@ func getBinInstalledVersion(bin types.Bin) semver.Version {
 	}
 
 	shellCommandOptions := util.GetDefaultOptions()
-	if bin.Version.EnvVars != nil {
-		shellCommandOptions.EnvVars = *bin.Version.EnvVars
+	if bin.Version.CommandEnvVars != nil {
+		shellCommandOptions.EnvVars = *bin.Version.CommandEnvVars
 	}
 	stdout, err := util.ExecuteShellCommand(getVersionCommand, shellCommandOptions)
 	ui.Debug("Getting version of %s. from stdout %s, err %v", bin.Binary, stdout, err)
