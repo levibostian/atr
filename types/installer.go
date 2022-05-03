@@ -16,12 +16,42 @@ type Installer struct {
 
 var Installers []Installer = GetInstallersFromConfig()
 
-func GetInstallersFromConfig() []Installer {
-	var installers []Installer
-	viper.UnmarshalKey("installers", &installers)
-	ui.Debug("installers from config file: %v", installers)
+var bundledInstallers = []Installer{
+	{
+		Id:              "brew",
+		Binary:          "brew",
+		InstallCommand:  "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"",
+		InstallTemplate: "brew install {{.Binary}}",
+		UpdateTemplate:  "brew upgrade {{.Binary}}",
+	}, {
+		Id:     "gem",
+		Binary: "gem",
+		// Do not try to install the ruby programming language for you. If it isn't installed, try another method.
+		InstallCommand:  "false",
+		InstallTemplate: "gem install {{.Binary}}",
+		UpdateTemplate:  "gem update {{.Binary}}",
+	},
+}
 
-	return installers
+func GetInstallersFromConfig() []Installer {
+	var configFileInstallers []Installer
+	viper.UnmarshalKey("installers", &configFileInstallers)
+	ui.Debug("installers from config file: %v", configFileInstallers)
+
+	var combinedInstallers = bundledInstallers
+	// combine the bundled + config file installers.
+	// allow user to override bundled.
+	for _, configFileInstaller := range configFileInstallers {
+		for index, bundledInstaller := range combinedInstallers {
+			if configFileInstaller.Binary == bundledInstaller.Binary {
+				combinedInstallers[index] = configFileInstaller
+			} else {
+				combinedInstallers = append(combinedInstallers, configFileInstaller)
+			}
+		}
+	}
+
+	return combinedInstallers
 }
 
 func GetInstallerFromId(installerId string) *Installer {
