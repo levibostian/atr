@@ -16,16 +16,3 @@ bins:
       command: fastlane --version
       commandEnvVars: [FASTLANE_SKIP_UPDATE_CHECK=true]
     installers: [gem, brew]
-  
-installer:
-  - id: brew
-    binary: brew 
-    installCommand: "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-    installTemplate: "brew install {{.Binary}}"
-    updateTemplate: "brew upgrade {{.Binary}}"
-  - id: gem
-    binary: gem
-    # Do not try to install the ruby programming language for you. If it isn't installed, try another method. 
-    installCommand: "false"
-    installTemplate: "gem install {{.Binary}}"
-    updateTemplate: "gem update {{.Binary}}"
