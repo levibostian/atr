@@ -2,23 +2,30 @@ bins:
   - binary: sourcery 
     version: 
       requirement: "^2.0.0"
-    installMethods:
-      - command: "brew install sourcery"
+    installers: [brew]
   - binary: lefthook 
     version:
       requirement: "^0.7"
       command: "lefthook version"
-    installMethods:
-      - command: "brew install lefthook"
-        updateCommand: "brew upgrade lefthook"
+    installers: [brew]
     postInstall:
-      command: "lefthook install"
+      - command: "lefthook install"
   - binary: fastlane
     version:
       requirement: "^2.0.0"
       command: fastlane --version
-      envVars: [FASTLANE_SKIP_UPDATE_CHECK=true]
-    installMethods:
-      - command: "gem install fastlane"
-      - command: "brew install fastlane"
-        updateCommand: "brew upgrade fastlane"
+      commandEnvVars: [FASTLANE_SKIP_UPDATE_CHECK=true]
+    installers: [gem, brew]
+  
+installer:
+  - id: brew
+    binary: brew 
+    installCommand: "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    installTemplate: "brew install {{.Binary}}"
+    updateTemplate: "brew upgrade {{.Binary}}"
+  - id: gem
+    binary: gem
+    # Do not try to install the ruby programming language for you. If it isn't installed, try another method. 
+    installCommand: "false"
+    installTemplate: "gem install {{.Binary}}"
+    updateTemplate: "gem update {{.Binary}}"

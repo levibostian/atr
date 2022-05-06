@@ -35,7 +35,7 @@ func RunCommand() {
 }
 
 func GetBinariesNotSatisfyingRequirements() ([]AssertError, []types.Bin) {
-	requiredBins := GetRequiredBins()
+	requiredBins := types.GetBinsFromConfig()
 
 	return AssertBinariesInstalledAndVersionMet(requiredBins)
 }

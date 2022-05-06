@@ -15,12 +15,18 @@ This command will only exit successfully, or as a failure depending on if all bi
 
 This command is good to use in a git hook, for example, to make sure all tools are installed before trying to run them.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		ui.Message("Welcome! I am going to check to see if you have the required programs (and required version of those programs) installed.")
-
-		assert.RunCommand()
+		AssertCommandRun()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(assertCmd)
+}
+
+// TODO I am trying to make this tool accessible by program as well as via Go code. So, I am making public functions availbale to call for each command.
+// I want to be able to disable all logging to stdout when not run via CLI. so, when any of the Cli commands run, I want to enable a flag to endable any logging. is there a cobra function that gets run for any of the cli functions?
+func AssertCommandRun() {
+	ui.Message("Welcome! I am going to check to see if you have the required programs (and required version of those programs) installed.")
+
+	assert.RunCommand()
 }
