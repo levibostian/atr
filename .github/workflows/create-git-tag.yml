@@ -9,7 +9,8 @@ jobs:
     name: Create git tag 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2    
+      - name: semantic-release setup
+        uses: levibostian/action-semantic-release-justwork@v1
 
       - name: Create tag via semantic release 
         uses: cycjimmy/semantic-release-action@v2
