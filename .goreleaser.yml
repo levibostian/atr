@@ -5,7 +5,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     main: ./main.go
-    binary: purslane
+    binary: bins
     goos:
     - windows
     - darwin
@@ -27,25 +27,25 @@ snapshot:
 
 dockers:
   - image_templates:
-    - "levibostian/purslane:latest"
-    - "levibostian/purslane:{{ .Tag }}"
+    - "levibostian/bins:latest"
+    - "levibostian/bins:{{ .Tag }}"
   
 brews:
-  - name: purslane
+  - name: bins
     tap:
       owner: levibostian
       name: homebrew-tap
     folder: Formula
-    homepage: "https://github.com/levibostian/purslane"
+    homepage: "https://github.com/levibostian/bins"
 
-snapcrafts:
-  - name: purslane
-    publish: true
-    summary: Scalable, flexible, affordable, and safe way to perform periodic tasks.
-    description: Run a single docker container inside of a cloud server as if it was a CLI.
-    grade: stable
-    confinement: strict
-    license: MIT
+# snapcrafts:
+#   - name: bins
+#     publish: true
+#     summary: Scalable, flexible, affordable, and safe way to perform periodic tasks.
+#     description: Run a single docker container inside of a cloud server as if it was a CLI.
+#     grade: stable
+#     confinement: strict
+#     license: MIT
 
 # skip changelog generation because semantic release does that for us already. Go releaser updates existing github releases if there is one.
 changelog:

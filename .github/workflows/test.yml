@@ -13,4 +13,12 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: "${{ env.GO_VERSION }}"
-      
+          
+      # goreleaser builds binary for many OSes. Good way to test that builds build successfully 
+      - name: Test build & deployment 
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist --snapshot --skip-publish # dry-run it 
+        env:
+          GITHUB_TOKEN: ${{ secrets.WRITE_ACCESS_BOT_TOKEN }}  

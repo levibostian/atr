@@ -18,10 +18,7 @@
         "@semantic-release/github",
         ["@semantic-release/git", {
             "assets": ["CHANGELOG.md"],
-            "message": "chore: ${nextRelease.version}\n\n${nextRelease.notes}"
-        }],
-        ["@semantic-release/exec", {
-            "prepareCmd": "goreleaser release"
+            "message": "chore: prepare for deployment ${nextRelease.version}\n\n${nextRelease.notes}"
         }]
     ]
 }

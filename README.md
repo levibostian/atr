@@ -11,7 +11,11 @@ Instead of creating a README that lists all of the binaries that your project us
 # Getting started 
 
 ### 1. Install 
-// TODO 
+
+There are many ways to download the CLI. 
+1. (recommended) `brew install levibostian/tap/bins`
+2. Download a pre-built binary directly from [GitHub releases](https://github.com/levibostian/bins/releases). 
+3. `curl -sf https://gobinaries.com/levibostian/bins | sh`
 
 ### 2. Configure `bins`
 
