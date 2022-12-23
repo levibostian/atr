@@ -8,6 +8,12 @@ Assert everyone on your team (or CI server) has required binaries installed for 
 
 Instead of creating a README that lists all of the binaries that your project uses that all contributors must install, all you need to do is tell the new contributors to install `bins` and run `bin install`. 
 
+## Development has stopped 
+
+This tool tried to solve a problem that can be solved in a better way. This project started as an experiment that turned out how doing a very good job at solving the problem. 
+
+Something like running a CLI inside of a Docker container currently would be better then this tool. 
+
 # Getting started 
 
 ### 1. Install 
